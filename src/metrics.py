@@ -217,6 +217,10 @@ def metrics(levelStr, roomList):
     legalPieces = 0
     if player > 1 or boss > 1 or key > 1:
         legalPieces = -5
+    elif player == 1 and boss == 1 and key == 1:
+        legalPieces = 10
+    elif player == 1 or boss == 1 or key == 1:
+        legalPieces = 5
     roomCount = 0
     if rooms > 5:
         roomCount = rooms / 15
