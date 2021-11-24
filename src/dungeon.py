@@ -180,6 +180,30 @@ class Generator(object):
                     if genome[row + 1][col + 1] == TILES['stone']:
                         genome[row + 1][col + 1] = TILES['wall']
 
+        # place doors on boss room
+        for room in room_list:
+            if 'B' in room[1]:
+                x = room[0][0]
+                y = room[0][1]
+                w = room[0][2]
+                h = room[0][3]
+                row_start = y - 1
+                row_end = y + h
+                col_start = x - 1
+                col_end = x + w
+                for y in range(row_start, row_end, 1):
+                    if genome[y][col_start] == TILES['floor']:
+                        genome[y][col_start] = TILES['door']
+                for x in range(col_start, col_end, 1):
+                    if genome[row_start][x] == TILES['floor']:
+                        genome[row_start][x] = TILES['door']
+                for y in range(row_start, row_end, 1):
+                    if genome[y][col_end] == TILES['floor']:
+                        genome[y][col_end] = TILES['door']
+                for x in range(col_start, col_end, 1):
+                    if genome[row_end][x] == TILES['floor']:
+                        genome[row_end][x] = TILES['door']
+        
         for room_nums, rooms in enumerate(room_list):
             genome[rooms[1][1]][rooms[1][0]] = rooms[1][2]
 
@@ -251,19 +275,19 @@ class Generator(object):
         w = room[0][2]
         h = room[0][3]
 
-        print("x: ", x, "y: ", y, "w: ", w, "h: ", h)
-        print("room list: ", room_list)
+        #print("x: ", x, "y: ", y, "w: ", w, "h: ", h)
+        #print("room list: ", room_list)
 
         for current_room in room_list:
-            print("current room: ", current_room)
+            #print("current room: ", current_room)
             # The rectangles don't overlap if
             # one rectangle's minimum in some dimension
             # is greater than the other's maximum in
             # that dimension.
             if (x < (current_room[0][0] + current_room[0][2]) and current_room[0][0] < (x + w + 1) and y < (current_room[0][1] + current_room[0][3]) and current_room[0][1] < (y + h + 1)):
-                print("x: ", x, "y: ", y, "w: ", w, "h: ", h)
-                print("room list: ", room_list)
-                print("current room: ", current_room)
+                #print("x: ", x, "y: ", y, "w: ", w, "h: ", h)
+                #print("room list: ", room_list)
+                #print("current room: ", current_room)
                 return True
         return False
 
