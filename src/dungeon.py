@@ -10,7 +10,7 @@
 
 # You should have received a copy of the CC0 legalcode along with this
 # work. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
-
+#
 from __future__ import print_function
 import copy
 import heapq
@@ -32,7 +32,8 @@ CHARACTER_TILES = {'stone': '*',
                    'trap': 'T',
                    'door': '/',
                    'key': 'K',
-                   'player': 'P'
+                   'player': 'P',
+                   'weapon': 'W'
                    }
 
 WIDTH = 64
@@ -83,11 +84,16 @@ class Generator(object):
         if self._fitness is None:
             self.calculate_fitness()
         return self._fitness
-
+    
+    ############################################################################
+    # MUTATE
     def mutate(self, room_list):
         global HEIGHT, WIDTH
         self.corridor_list = []
         genome = []
+        weapon_count = 0
+        MAX_WEAPON_COUNT = 3
+        weapon_positions = [()]
         for i in range(HEIGHT):
             genome.append([TILES['stone']] * WIDTH)
 
@@ -107,8 +113,7 @@ class Generator(object):
 
                 if self.room_overlapping(tmp_room, tmp_room_list) is False:
                     room_list.append(tmp_room)
-
-
+        
         # connect the rooms
         for a in range(len(room_list) - 1):
             self.join_rooms(room_list[a][0], room_list[a + 1][0])
@@ -127,8 +132,7 @@ class Generator(object):
                 room_2 = room_list[random.randint(0, len(room_list) - 1)][0]
                 self.join_rooms(room_1, room_2)
 
-        # fill the map
-        # paint rooms
+        # fill the map, paint rooms
         for room_num, room in enumerate(room_list):
             for b in range(room[0][2]):
                 for c in range(room[0][3]):
@@ -180,30 +184,41 @@ class Generator(object):
                     if genome[row + 1][col + 1] == TILES['stone']:
                         genome[row + 1][col + 1] = TILES['wall']
 
-        # place doors on boss room
+        # place doors on boss room, weapons in rooms with enemies
         for room in room_list:
+            x = room[0][0]
+            y = room[0][1]
+            w = room[0][2]
+            h = room[0][3]
+            row_start = y - 1
+            row_end = y + h
+            col_start = x - 1
+            col_end = x + w
+
             if 'B' in room[1]:
-                x = room[0][0]
-                y = room[0][1]
-                w = room[0][2]
-                h = room[0][3]
-                row_start = y - 1
-                row_end = y + h
-                col_start = x - 1
-                col_end = x + w
                 for y in range(row_start, row_end, 1):
                     if genome[y][col_start] == TILES['floor']:
                         genome[y][col_start] = TILES['door']
-                for x in range(col_start, col_end, 1):
-                    if genome[row_start][x] == TILES['floor']:
-                        genome[row_start][x] = TILES['door']
-                for y in range(row_start, row_end, 1):
                     if genome[y][col_end] == TILES['floor']:
                         genome[y][col_end] = TILES['door']
                 for x in range(col_start, col_end, 1):
+                    if genome[row_start][x] == TILES['floor']:
+                        genome[row_start][x] = TILES['door']
                     if genome[row_end][x] == TILES['floor']:
                         genome[row_end][x] = TILES['door']
-        
+            
+            if ('E' in room[1] or 'R' in room[1]) and (weapon_count < MAX_WEAPON_COUNT):
+                weapon_positions.append((y, x))
+                weapon_positions.append((row_end - 1, x))
+                weapon_positions.append((y, col_end - 1))
+                weapon_positions.append((row_end - 1, col_end - 1))
+                pos = ()
+                while pos == ():
+                    pos = random.choice(weapon_positions)
+                if genome[pos[0]][pos[1]] == TILES['floor']:
+                    genome[pos[0]][pos[1]] = 'W'
+                    weapon_count += 1
+
         for room_nums, rooms in enumerate(room_list):
             genome[rooms[1][1]][rooms[1][0]] = rooms[1][2]
 

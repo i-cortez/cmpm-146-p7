@@ -1,3 +1,8 @@
+# input_manager.py
+#
+# Adapted from Alejandro Fraga:
+#   https://github.com/AlejandroFraga/simple-pygame/blob/main/game/data_helper.py
+#
 """
 The input manager is used to process all the inputs received from the __player
 """

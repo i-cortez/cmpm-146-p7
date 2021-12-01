@@ -1,3 +1,8 @@
+# level_manager.py
+#
+# Adapted from Alejandro Fraga:
+#   https://github.com/AlejandroFraga/simple-pygame/blob/main/game/data_helper.py
+#
 from pygame.sprite import Group
 
 from data_helper import is_list_of_size

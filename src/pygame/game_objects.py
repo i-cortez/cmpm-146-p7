@@ -1,3 +1,8 @@
+# game_objects.py
+#
+# Adapted from Alejandro Fraga:
+#   https://github.com/AlejandroFraga/simple-pygame/blob/main/game/data_helper.py
+#
 """
 Game Object classes to
 """

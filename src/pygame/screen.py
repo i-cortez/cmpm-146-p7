@@ -1,3 +1,8 @@
+# screen.py
+#
+# Adapted from Alejandro Fraga:
+#   https://github.com/AlejandroFraga/simple-pygame/blob/main/game/data_helper.py
+#
 """
 File that manages all the screen functions, like painting sprites or text, or updating every frame
 """

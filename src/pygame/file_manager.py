@@ -1,9 +1,12 @@
+# file_manager.py
+#
+# Adapted from Alejandro Fraga:
+#   https://github.com/AlejandroFraga/simple-pygame/blob/main/game/data_helper.py
+#
 from enum import Enum
-
 import pygame
-
-from data_helper import safe_cast, split_in_chars_and_remove, clean_end_line_str, process_coordinates, \
-    is_list_of_size, check_slash_at_end
+from data_helper import safe_cast, split_in_chars_and_remove, clean_end_line_str, \
+    process_coordinates, is_list_of_size, check_slash_at_end
 
 
 def load_image(file_path, width, height):
@@ -214,3 +217,4 @@ class FileReader:
         close_file(level_file)
 
         return result
+

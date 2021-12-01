@@ -1,3 +1,8 @@
+# collision_manager.py
+#
+# Adapted from Alejandro Fraga:
+#   https://github.com/AlejandroFraga/simple-pygame/blob/main/game/data_helper.py
+#
 """
 Functions to handle and calculate the collisions of the game
 """
