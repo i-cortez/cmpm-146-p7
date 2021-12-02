@@ -44,12 +44,17 @@ class Game:
         self.keys_door = pg.sprite.Group()
         self.doors = pg.sprite.Group()
         self.orbs = pg.sprite.Group()
+        self.webs = pg.sprite.Group()
         self.swords = pg.sprite.Group()
         self.wands = pg.sprite.Group()
+        self.chests = pg.sprite.Group()
+        self.bosses = pg.sprite.Group()
         for row, tiles in enumerate(self.map.data):
             for col, tile in enumerate(tiles):
                 if tile == '#':
                     Wall(self, col, row)
+                if tile == 'M':
+                    Chest(self, col, row)
                 if tile == 'R':
                     Range(self, col, row)
                 if tile == 'W':
@@ -62,6 +67,8 @@ class Game:
                     Key_Door(self, col, row)
                 if tile == 'E':
                     Enemy(self, col, row)
+                if tile == 'B':
+                    Boss(self, col, row)
                 if tile == 'P':
                     self.player = Player(self, col, row)
         self.camera = Camera(self.map.width, self.map.height)
@@ -97,8 +104,22 @@ class Game:
                 self.player.health -= ENEMY_DAMAGE
                 if self.player.health <= 0:
                     self.playing = False
+            hits = pg.sprite.spritecollide(self.player, self.bosses, False)
+            for hit in hits:
+                self.player.health -= BOSS_DAMAGE
+                if self.player.health <= 0:
+                    self.playing = False
+            hits = pg.sprite.spritecollide(self.player, self.webs, False)
+            for hit in hits:
+                hit.kill()
+                self.player.health -= BOSS_WEB_DAMAGE
+                if self.player.health <= 0:
+                    self.playing = False
         # orbs hit mobs
         hits = pg.sprite.groupcollide(self.ranged, self.orbs, False, True)
+        for hit in hits:
+            hit.health -= ORB_DAMAGE + (2 * self.player.wand_count) - 2
+        hits = pg.sprite.groupcollide(self.bosses, self.orbs, False, True)
         for hit in hits:
             hit.health -= ORB_DAMAGE + (2 * self.player.wand_count) - 2
         hits = pg.sprite.groupcollide(self.enemies, self.orbs, False, True)
@@ -116,6 +137,17 @@ class Game:
             elif self.player.dir == 'L':
                 hit.x -= ENEMY_KNOCKBACK
         hits = pg.sprite.groupcollide(self.ranged, self.swords, False, True)
+        for hit in hits:
+            hit.health -= SWORD_DAMAGE
+            if self.player.dir == 'U':
+                hit.y -= ENEMY_KNOCKBACK
+            elif self.player.dir == 'D':
+                hit.y += ENEMY_KNOCKBACK
+            elif self.player.dir == 'R':
+                hit.x += ENEMY_KNOCKBACK
+            elif self.player.dir == 'L':
+                hit.x -= ENEMY_KNOCKBACK
+        hits = pg.sprite.groupcollide(self.bosses, self.swords, False, True)
         for hit in hits:
             hit.health -= SWORD_DAMAGE
             if self.player.dir == 'U':
@@ -144,6 +176,9 @@ class Game:
         # self.draw_grid()
         for sprite in self.all_sprites:
             if isinstance(sprite, Enemy):
+                sprite.draw_health()
+            self.screen.blit(sprite.image, self.camera.apply(sprite))
+            if isinstance(sprite, Boss):
                 sprite.draw_health()
             self.screen.blit(sprite.image, self.camera.apply(sprite))
             if isinstance(sprite, Range):
