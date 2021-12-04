@@ -184,6 +184,64 @@ class Generator(object):
                     if genome[row + 1][col + 1] == TILES['stone']:
                         genome[row + 1][col + 1] = TILES['wall']
 
+        # mutate the boss room to meet certain conditions
+        for room in room_list:
+            x = room[0][0]
+            y = room[0][1]
+            w = room[0][2]
+            h = room[0][3]
+            row_start = y - 1
+            row_end = y + h
+            col_start = x - 1
+            col_end = x + w
+            
+            if 'B' in room[1]:
+                # make sure all corners of room are a wall tile
+                if genome[row_start][col_start] != TILES['wall']:
+                    genome[row_start][col_start] == TILES['wall']
+                if genome[row_start][col_end] != TILES['wall']:
+                    genome[row_start][col_end] == TILES['wall']
+                if genome[row_end][col_start] != TILES['wall']:
+                    genome[row_end][col_start] == TILES['wall']
+                if genome[row_end][col_end] != TILES['wall']:
+                    genome[row_end][col_end] == TILES['wall']
+                
+                # make sure boundary rows have the appropriate number of walls
+                for x in range(col_start + 1, col_end, 1):
+                    if genome[row_start][x] == TILES['floor']:
+                        if genome[row_start][x - 1] == TILES['wall'] and genome[row_start][x + 1] == TILES['wall']:
+                            continue
+                        elif genome[row_start][x - 1] == TILES['wall'] and genome[row_start][x + 1] != TILES['wall']:
+                            genome[row_start][x + 1] = TILES['wall']
+                        else:
+                            genome[row_start][x - 1] = TILES['wall']
+                for x in range(col_start + 1, col_end, 1):
+                    if genome[row_end][x] == TILES['floor']:
+                        if genome[row_end][x - 1] == TILES['wall'] and genome[row_end][x + 1] == TILES['wall']:
+                            continue
+                        elif genome[row_end][x - 1] == TILES['wall'] and genome[row_end][x + 1] != TILES['wall']:
+                            genome[row_end][x + 1] = TILES['wall']
+                        else:
+                            genome[row_end][x - 1] = TILES['wall']
+                
+                # make sure boundary columns have the appropriate number of walls
+                for y in range(row_start + 1, row_end, 1):
+                    if genome[y][col_start] == TILES['floor']:
+                        if genome[y - 1][col_start] == TILES['wall'] and genome[y + 1][col_start] == TILES['wall']:
+                            continue
+                        elif genome[y - 1][col_start] == TILES['wall'] and genome[y + 1][col_start] != TILES['wall']:
+                            genome[y + 1][col_start] = TILES['wall']
+                        else:
+                            genome[y - 1][col_start] != TILES['wall']
+                for y in range(row_start + 1, row_end, 1):
+                    if genome[y][col_end] == TILES['floor']:
+                        if genome[y - 1][col_end] == TILES['wall'] and genome[y + 1][col_end] == TILES['wall']:
+                            continue
+                        elif genome[y - 1][col_end] == TILES['wall'] and genome[y + 1][col_end] != TILES['wall']:
+                            genome[y + 1][col_end] = TILES['wall']
+                        else:
+                            genome[y - 1][col_end] != TILES['wall']
+
         # place doors on boss room, weapons in rooms with enemies
         for room in room_list:
             x = room[0][0]

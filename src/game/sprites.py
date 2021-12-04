@@ -6,6 +6,7 @@ import random
 img_path = './pixel_art/link_'
 w_img_path = './pixel_art/wolf_'
 b_img_path = './pixel_art/boss_'
+c_img_path = './pixel_art/chest_'
 f_path = img_path + 'f'
 b_path = img_path + 'b'
 r_path = img_path + 'r'
@@ -36,6 +37,16 @@ b_boss = [b_b_path + str(b) + '.png' for b in range(18)]
 r_boss = [r_b_path + str(r) + '.png' for r in range(18)]
 l_boss = [l_b_path + str(l) + '.png' for l in range(18)]
 
+f_c_path = c_img_path + 'f'
+b_c_path = c_img_path + 'b'
+r_c_path = c_img_path + 'r'
+l_c_path = c_img_path + 'l'
+
+f_chest = [f_c_path + str(f) + '.png' for f in range(18)]
+b_chest = [b_c_path + str(b) + '.png' for b in range(18)]
+r_chest = [r_c_path + str(r) + '.png' for r in range(18)]
+l_chest = [l_c_path + str(l) + '.png' for l in range(18)]
+
 def collide_with_walls(sprite, group, dir):
     if dir == 'x':
         hits = pg.sprite.spritecollide(sprite, group, False)
@@ -55,6 +66,16 @@ def collide_with_walls(sprite, group, dir):
                 sprite.y = hits[0].rect.bottom
             sprite.vy = 0
             sprite.rect.y = sprite.y
+
+def collide_with_baddies(sprite, group, dir):
+    if dir == 'x':
+        hits = pg.sprite.spritecollide(sprite, group, False)
+        if hits:
+            sprite.vx = 0
+    if dir == 'y':
+        hits = pg.sprite.spritecollide(sprite, group, False)
+        if hits:
+            sprite.vy = 0
 
 def collide_with_door(sprite, group, dir):
     if sprite.door_key == False:
@@ -177,9 +198,17 @@ class Player(pg.sprite.Sprite):
         self.collide_with_chest()
         collide_with_door(self, self.game.doors, 'x')
         collide_with_walls(self, self.game.walls, 'x')
+        collide_with_baddies(self, self.game.traps, 'x')
+        collide_with_baddies(self, self.game.ranged, 'x')
+        collide_with_baddies(self, self.game.bosses, 'x')
+        collide_with_baddies(self, self.game.enemies, 'x')
         self.rect.y = self.y
         collide_with_walls(self, self.game.walls, 'y')
         collide_with_door(self, self.game.doors, 'y')
+        collide_with_baddies(self, self.game.traps, 'y')
+        collide_with_baddies(self, self .game.ranged, 'y')
+        collide_with_baddies(self, self.game.bosses, 'y')
+        collide_with_baddies(self, self.game.enemies, 'y')
 
 class Sword(pg.sprite.Sprite):
     def __init__(self, game, x, y, dir):
@@ -314,6 +343,8 @@ class Door(pg.sprite.Sprite):
     def update(self):
         if self.game.player.door_key == True:
             self.image = pg.transform.scale(pg.image.load('./pixel_art/open.png'), (TILESIZE, TILESIZE))
+        else:
+            self.image = pg.transform.scale(pg.image.load('./pixel_art/closed.png'), (TILESIZE, TILESIZE))
 
 class Wall(pg.sprite.Sprite):
     def __init__(self, game, x, y):
@@ -454,6 +485,10 @@ class Enemy(pg.sprite.Sprite):
 
     def update(self):
         self.move()
+        hits = pg.sprite.spritecollide(self.game.player, self.game.enemies, False)
+        for hit in hits:
+            self.vx = 0
+            self.vy = 0
         self.x += self.vx * self.game.dt
         self.y += self.vy * self.game.dt
         self.rect.x = self.x
@@ -581,6 +616,117 @@ class Range(pg.sprite.Sprite):
 
     def update(self):
         self.move()
+        hits = pg.sprite.spritecollide(self.game.player, self.game.ranged, False)
+        for hit in hits:
+            self.vx = 0
+            self.vy = 0
+        self.x += self.vx * self.game.dt
+        self.y += self.vy * self.game.dt
+        self.rect.x = self.x
+        collide_with_walls(self, self.game.walls, 'x')
+        self.rect.y = self.y
+        collide_with_walls(self, self.game.walls, 'y')
+        if self.health <= 0:
+            self.kill()
+
+    def draw_health(self):
+        if self.health > 20:
+            col = GREEN
+        elif self.health > 10:
+            col = YELLOW
+        else:
+            col = RED
+        width = int(self.rect.width * self.health / ENEMY_HEALTH)
+        self.health_bar = pg.Rect(0, 0, width, 7)
+        if self.health < ENEMY_HEALTH:
+            pg.draw.rect(self.image, col, self.health_bar)
+
+class Trap(pg.sprite.Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.traps
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE/1.8, TILESIZE/1.8))
+        self.image = pg.transform.scale(pg.image.load('./pixel_art/chest_f0.png'), (TILESIZE/1.8, TILESIZE/1.8))
+        self.rect = self.image.get_rect()
+        self.hit_rect = self.image.get_rect()
+        self.hit_rect_center = self.rect.center
+        self.vx, self.vy = 0, 0
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
+        self.counter = 0
+        self.touched = False
+        self.walk = 0
+        self.playerx = self.game.player.x
+        self.playery = self.game.player.y
+        self.health = ENEMY_HEALTH
+
+    def move(self):
+        self.playerx = self.game.player.x
+        self.playery = self.game.player.y
+        self.vx, self.vy = 0, 0
+        if self.counter > 18:
+            self.counter = 0
+        if self.touched == True:
+            if self.playerx < self.x:
+                distance_x = self.x - self.playerx
+                if self.playery > self.y:
+                    distance_y = self.playery - self.y
+                    if distance_x > distance_y:
+                        self.image = pygame.transform.scale(pygame.image.load(l_chest[self.counter]),
+                                                            (TILESIZE / 1.8, TILESIZE / 1.8))
+                        self.counter = (self.counter + 1) % len(l_chest)
+                        self.vx = -BOSS_SPEED
+                    else:
+                        self.image = pygame.transform.scale(pygame.image.load(f_chest[self.counter]),
+                                                            (TILESIZE / 1.8, TILESIZE / 1.8))
+                        self.counter = (self.counter + 1) % len(f_chest)
+                        self.vy = BOSS_SPEED
+                elif self.playery < self.y:
+                    distance_y = self.y - self.playery
+                    if distance_x > distance_y:
+                        self.image = pygame.transform.scale(pygame.image.load(l_chest[self.counter]),
+                                                            (TILESIZE / 1.8, TILESIZE / 1.8))
+                        self.counter = (self.counter + 1) % len(l_chest)
+                        self.vx = -BOSS_SPEED
+                    else:
+                        self.image = pygame.transform.scale(pygame.image.load(b_chest[self.counter]),
+                                                            (TILESIZE / 1.8, TILESIZE / 1.8))
+                        self.counter = (self.counter + 1) % len(b_chest)
+                        self.vy = -BOSS_SPEED
+            elif self.playerx > self.x:
+                distance_x = self.playerx - self.x
+                if self.playery > self.y:
+                    distance_y = self.playery - self.y
+                    if distance_x > distance_y:
+                        self.image = pygame.transform.scale(pygame.image.load(r_chest[self.counter]),
+                                                            (TILESIZE / 1.8, TILESIZE / 1.8))
+                        self.counter = (self.counter + 1) % len(r_chest)
+                        self.vx = BOSS_SPEED
+                    else:
+                        self.image = pygame.transform.scale(pygame.image.load(f_chest[self.counter]),
+                                                            (TILESIZE / 1.8, TILESIZE / 1.8))
+                        self.counter = (self.counter + 1) % len(f_chest)
+                        self.vy = BOSS_SPEED
+                elif self.playery < self.y:
+                    distance_y = self.y - self.playery
+                    if distance_x > distance_y:
+                        self.image = pygame.transform.scale(pygame.image.load(r_chest[self.counter]),
+                                                            (TILESIZE / 1.8, TILESIZE / 1.8))
+                        self.counter = (self.counter + 1) % len(r_wolf)
+                        self.vx = BOSS_SPEED
+                    else:
+                        self.image = pygame.transform.scale(pygame.image.load(b_chest[self.counter]),
+                                                            (TILESIZE / 1.8, TILESIZE / 1.8))
+                        self.counter = (self.counter + 1) % len(b_chest)
+                        self.vy = -BOSS_SPEED
+
+    def update(self):
+        self.move()
+        hits = pg.sprite.spritecollide(self.game.player, self.game.traps, False)
+        for hit in hits:
+            self.vx = 0
+            self.vy = 0
         self.x += self.vx * self.game.dt
         self.y += self.vy * self.game.dt
         self.rect.x = self.x
@@ -645,6 +791,9 @@ class Boss(pg.sprite.Sprite):
                 Web(self.game, self.x, self.y, 'L')
                 Web(self.game, self.x, self.y, 'R')
                 self.web_rate = (random.randint(BOSS_WEB_RATE_MIN, BOSS_WEB_RATE_MAX)) * 100
+            if now - self.track_shot > self.track_rate:
+                self.track_shot = now
+                Track(self.game, self.x, self.y, 'R')
                 self.track_rate = (random.randint(BOSS_TRACK_MIN, BOSS_TRACK_MAX)) * 100
             if self.playerx < self.x:
                 distance_x = self.x - self.playerx
@@ -701,6 +850,10 @@ class Boss(pg.sprite.Sprite):
 
     def update(self):
         self.move()
+        hits = pg.sprite.spritecollide(self.game.player, self.game.bosses, False)
+        for hit in hits:
+            self.vx = 0
+            self.vy = 0
         self.x += self.vx * self.game.dt
         self.y += self.vy * self.game.dt
         self.rect.x = self.x
@@ -754,38 +907,62 @@ class Web(pg.sprite.Sprite):
             self.kill()
         if pg.time.get_ticks() - self.spawn_time > BOSS_WEB_LIFETIME:
             self.kill()
-        # if pg.sprite.spritecollideany(self, self.game.player):
-        #     self.kill()
 
-# class Orb(pg.sprite.Sprite):
-#     def __init__(self, game, x, y, dir):
-#         self.groups = game.all_sprites, game.orbs
-#         pg.sprite.Sprite.__init__(self, self.groups)
-#         self.game = game
-#         self.image = pg.Surface((TILESIZE/2, TILESIZE/2))
-#         self.image = pg.transform.scale(pg.image.load('./pixel_art/orb.png'), (TILESIZE/2, TILESIZE/2))
-#         self.rect = self.image.get_rect()
-#         self.spawn_time = pg.time.get_ticks()
-#         self.vx, self.vy = 0, 0
-#         self.x = x
-#         self.y = y
-#         self.rect.x = x * TILESIZE
-#         self.rect.y = y * TILESIZE
-#         if dir == 'U':
-#             self.vy = -ORB_SPEED
-#         elif dir == 'D':
-#             self.vy = ORB_SPEED
-#         elif dir == 'R':
-#             self.vx = ORB_SPEED
-#         elif dir == 'L':
-#             self.vx = -ORB_SPEED
-#
-#     def update(self):
-#         self.x += self.vx * self.game.dt
-#         self.y += self.vy * self.game.dt
-#         self.rect.x = self.x
-#         self.rect.y = self.y
-#         if pg.sprite.spritecollideany(self, self.game.walls):
-#             self.kill()
-#         if pg.time.get_ticks() - self.spawn_time > ORB_LIFETIME:
-#             self.kill()
+class Track(pg.sprite.Sprite):
+    def __init__(self, game, x, y, dir):
+        self.groups = game.all_sprites, game.tracks
+        pg.sprite.Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE/2, TILESIZE/2))
+        self.image = pg.transform.scale(pg.image.load('./pixel_art/track.png'), (TILESIZE/2, TILESIZE/2))
+        self.rect = self.image.get_rect()
+        self.spawn_time = pg.time.get_ticks()
+        self.vx, self.vy = 0, 0
+        self.x = x
+        self.y = y
+        self.rect.x = x * TILESIZE
+        self.rect.y = y * TILESIZE
+
+    def move(self):
+        self.playerx = self.game.player.x
+        self.playery = self.game.player.y
+        self.vx, self.vy = 0, 0
+        if self.playerx < self.x:
+            distance_x = self.x - self.playerx
+            if self.playery > self.y:
+                distance_y = self.playery - self.y
+                if distance_x > distance_y:
+                    self.vx = -TRACK_SPEED
+                else:
+                    self.vy = TRACK_SPEED
+            elif self.playery < self.y:
+                distance_y = self.y - self.playery
+                if distance_x > distance_y:
+                    self.vx = -TRACK_SPEED
+                else:
+                    self.vy = -TRACK_SPEED
+        elif self.playerx > self.x:
+            distance_x = self.playerx - self.x
+            if self.playery > self.y:
+                distance_y = self.playery - self.y
+                if distance_x > distance_y:
+                    self.vx = TRACK_SPEED
+                else:
+                    self.vy = TRACK_SPEED
+            elif self.playery < self.y:
+                distance_y = self.y - self.playery
+                if distance_x > distance_y:
+                    self.vx = TRACK_SPEED
+                else:
+                    self.vy = -TRACK_SPEED
+
+    def update(self):
+        self.move()
+        self.x += self.vx * self.game.dt
+        self.y += self.vy * self.game.dt
+        self.rect.x = self.x
+        self.rect.y = self.y
+        if pg.sprite.spritecollideany(self, self.game.walls):
+            self.kill()
+        if pg.time.get_ticks() - self.spawn_time > BOSS_TRACK_LIFETIME:
+            self.kill()
