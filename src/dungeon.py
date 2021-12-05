@@ -291,12 +291,22 @@ class Generator(object):
             split = random.randint(1, len(new_room_list)-1)
             i = split
             while i < len(self.room_list):
-                del new_room_list[random.randint(0, len(new_room_list)-1)]
-                i += 1
+                cur_room = new_room_list[random.randint(0, len(new_room_list)-1)]
+                if 'P' in cur_room[1] or 'B' in cur_room[1] or 'K' in cur_room[1]:
+                    i += 1
+                    continue
+                else:
+                    del new_room_list[random.randint(0, len(new_room_list)-1)]
+                    i += 1
             i = split
             while i < len(other.room_list):
-                del other.room_list[random.randint(0, len(other.room_list) - 1)]
-                i += 1
+                cur_room = other.room_list[random.randint(0, len(other.room_list) - 1)]
+                if 'P' in cur_room[1] or 'B' in cur_room[1] or 'K' in cur_room[1]:
+                    i += 1
+                    continue
+                else:
+                    del other.room_list[random.randint(0, len(other.room_list) - 1)]
+                    i += 1
             chance = random.random()
             if chance > .5:
                 for temp in other.room_list:
