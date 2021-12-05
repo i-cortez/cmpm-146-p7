@@ -347,7 +347,7 @@ class Generator(object):
         y = random.randint(1, (HEIGHT - h - 1))
         xx = random.randint(x, (x + w - 1))
         yy = random.randint(y, (y + h - 1))
-        tile = random.choice([TILES['player'], TILES['boss'], TILES['floor'], TILES['item'], TILES['enemy'], TILES['ranged'], TILES['key'], TILES['trap']])
+        tile = random.choice([TILES['player'], TILES['boss'], TILES['item'], TILES['enemy'], TILES['ranged'], TILES['key'], TILES['trap']])
 
         return [[x, y, w, h], [xx, yy, tile]]
 

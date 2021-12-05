@@ -5,7 +5,6 @@ from settings import *
 from sprites import *
 from tilemap import *
 
-
 def draw_player_health(surf, x, y, pct):
     if pct < 0:
         pct = 0
@@ -23,21 +22,17 @@ def draw_player_health(surf, x, y, pct):
     pg.draw.rect(surf, col, fill_rect)
     pg.draw.rect(surf, WHITE, outline_rect, 2)
 
-
 class Game:
     def __init__(self):
         pg.init()
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
         pg.display.set_caption(TITLE)
         self.clock = pg.time.Clock()
-        self.load_data('level_1.txt')
+        self.load_data()
 
-    # def load_data(self):
-    #     game_folder = path.dirname(__file__)
-    #     self.map = Map(path.join(game_folder, 'level_1.txt'))
-    def load_data(self, levelFile):
+    def load_data(self):
         game_folder = path.dirname(__file__)
-        self.map = Map(path.join(game_folder, levelFile))
+        self.map = Map(path.join(game_folder, 'level_1.txt'))
 
     def new(self):
         # initialize all variables and do all the setup for a new game
@@ -121,30 +116,23 @@ class Game:
                 self.player.health -= ENEMY_DAMAGE
                 if self.player.health <= 0:
                     self.playing = False
-            # FOR BOSS DAMAGING PLAYER
             hits = pg.sprite.spritecollide(self.player, self.bosses, False)
             for hit in hits:
-                self.player.door_key = False
                 self.player.health -= BOSS_DAMAGE
                 if self.player.health <= 0:
                     self.playing = False
-
-        # TRACKING PART
         hits = pg.sprite.spritecollide(self.player, self.webs, False)
         for hit in hits:
-            self.player.door_key = False
             hit.kill()
             self.player.health -= BOSS_WEB_DAMAGE
             if self.player.health <= 0:
                 self.playing = False
         hits = pg.sprite.spritecollide(self.player, self.tracks, False)
         for hit in hits:
-            self.player.door_key = False
             hit.kill()
             self.player.health -= TRACK_DAMAGE
             if self.player.health <= 0:
                 self.playing = False
-
         # orbs hit mobs
         hits = pg.sprite.groupcollide(self.ranged, self.orbs, False, True)
         for hit in hits:
@@ -153,15 +141,9 @@ class Game:
         for hit in hits:
             hit.touched = True
             hit.health -= ORB_DAMAGE + (2 * self.player.wand_count) - 2
-
-        # FOR BOSS
         hits = pg.sprite.groupcollide(self.bosses, self.orbs, False, True)
         for hit in hits:
             hit.health -= ORB_DAMAGE + (2 * self.player.wand_count) - 2
-            # TEMPORARY SOLUTION
-            if hit.health <= 0:
-                self.playing = False
-                self.load_data('level_2.txt')
         hits = pg.sprite.groupcollide(self.enemies, self.orbs, False, True)
         for hit in hits:
             hit.health -= ORB_DAMAGE + (2 * self.player.wand_count) - 2
@@ -187,7 +169,6 @@ class Game:
                 hit.x += ENEMY_KNOCKBACK
             elif self.player.dir == 'L':
                 hit.x -= ENEMY_KNOCKBACK
-        #  FOR BOSS
         hits = pg.sprite.groupcollide(self.bosses, self.swords, False, True)
         for hit in hits:
             hit.health -= SWORD_DAMAGE
@@ -199,10 +180,6 @@ class Game:
                 hit.x += ENEMY_KNOCKBACK
             elif self.player.dir == 'L':
                 hit.x -= ENEMY_KNOCKBACK
-            # TEMPORARY SOLUTION
-            if hit.health <= 0:
-                self.playing = False
-                self.load_data('level_2.txt')
         hits = pg.sprite.groupcollide(self.traps, self.swords, False, True)
         for hit in hits:
             hit.touched = True

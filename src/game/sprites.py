@@ -7,6 +7,9 @@ img_path = './pixel_art/link_'
 w_img_path = './pixel_art/wolf_'
 b_img_path = './pixel_art/boss_'
 c_img_path = './pixel_art/chest_'
+r_img_path = './pixel_art/bat_'
+f_r_path = r_img_path + 'f'
+f_bat = [f_r_path + str(f) + '.png' for f in range(18)]
 f_path = img_path + 'f'
 b_path = img_path + 'b'
 r_path = img_path + 'r'
@@ -516,7 +519,7 @@ class Range(pg.sprite.Sprite):
         pg.sprite.Sprite.__init__(self, self.groups)
         self.game = game
         self.image = pg.Surface((TILESIZE/2, TILESIZE/2))
-        self.image = pg.transform.scale(pg.image.load('./pixel_art/wolf_f0.png'), (TILESIZE/2, TILESIZE/2))
+        self.image = pg.transform.scale(pg.image.load('./pixel_art/bat_f0.png'), (TILESIZE/2, TILESIZE/2))
         self.rect = self.image.get_rect()
         self.hit_rect = self.image.get_rect()
         self.hit_rect_center = self.rect.center
@@ -534,21 +537,21 @@ class Range(pg.sprite.Sprite):
         self.playerx = self.game.player.x
         self.playery = self.game.player.y
         self.vx, self.vy = 0, 0
-        if self.counter > 20:
+        if self.counter > 18:
             self.counter = 0
         if self.seen ==  False:
             if (abs(self.x - self.playerx) <= 5 * TILESIZE) and (abs(self.y - self.playery) <= 5 * TILESIZE):
                 self.seen = True
             now = pg.time.get_ticks()
             if (now - self.walk <= WALK_L):
-                self.image = pygame.transform.scale(pygame.image.load(f_wolf[self.counter]),
+                self.image = pygame.transform.scale(pygame.image.load(f_bat[self.counter]),
                                                     (TILESIZE / 2, TILESIZE / 2))
-                self.counter = (self.counter + 1) % len(f_wolf)
+                self.counter = (self.counter + 1) % len(f_bat)
                 self.vy = RANGED_SPEED
             elif (now - self.walk < WALK_R):
-                self.image = pygame.transform.scale(pygame.image.load(b_wolf[self.counter]),
+                self.image = pygame.transform.scale(pygame.image.load(f_bat[self.counter]),
                                                     (TILESIZE / 2, TILESIZE / 2))
-                self.counter = (self.counter + 1) % len(b_wolf)
+                self.counter = (self.counter + 1) % len(f_bat)
                 self.vy = -RANGED_SPEED
             else:
                 self.walk = now
@@ -560,28 +563,28 @@ class Range(pg.sprite.Sprite):
                     if distance_x > distance_y:
                         if self.counter > 11:
                             self.counter = 0
-                        self.image = pygame.transform.scale(pygame.image.load(l_wolf[self.counter]),
+                        self.image = pygame.transform.scale(pygame.image.load(f_bat[self.counter]),
                                                             (TILESIZE / 2, TILESIZE / 2))
                         self.counter = (self.counter + 1) % len(l_wolf)
                         self.vx = -RANGED_SPEED
                     else:
-                        self.image = pygame.transform.scale(pygame.image.load(f_wolf[self.counter]),
+                        self.image = pygame.transform.scale(pygame.image.load(f_bat[self.counter]),
                                                             (TILESIZE / 2, TILESIZE / 2))
-                        self.counter = (self.counter + 1) % len(f_wolf)
+                        self.counter = (self.counter + 1) % len(f_bat)
                         self.vy = RANGED_SPEED
                 elif self.playery < self.y:
                     distance_y = self.y - self.playery
                     if distance_x > distance_y:
                         if self.counter > 11:
                             self.counter = 0
-                        self.image = pygame.transform.scale(pygame.image.load(l_wolf[self.counter]),
+                        self.image = pygame.transform.scale(pygame.image.load(f_bat[self.counter]),
                                                             (TILESIZE / 2, TILESIZE / 2))
                         self.counter = (self.counter + 1) % len(l_wolf)
                         self.vx = -RANGED_SPEED
                     else:
-                        self.image = pygame.transform.scale(pygame.image.load(b_wolf[self.counter]),
+                        self.image = pygame.transform.scale(pygame.image.load(f_bat[self.counter]),
                                                             (TILESIZE / 2, TILESIZE / 2))
-                        self.counter = (self.counter + 1) % len(b_wolf)
+                        self.counter = (self.counter + 1) % len(f_bat)
                         self.vy = -RANGED_SPEED
             elif self.playerx > self.x:
                 distance_x = self.playerx - self.x
@@ -590,28 +593,28 @@ class Range(pg.sprite.Sprite):
                     if distance_x > distance_y:
                         if self.counter > 11:
                             self.counter = 0
-                        self.image = pygame.transform.scale(pygame.image.load(r_wolf[self.counter]),
+                        self.image = pygame.transform.scale(pygame.image.load(f_bat[self.counter]),
                                                             (TILESIZE / 2, TILESIZE / 2))
-                        self.counter = (self.counter + 1) % len(r_wolf)
+                        self.counter = (self.counter + 1) % len(f_bat)
                         self.vx = RANGED_SPEED
                     else:
-                        self.image = pygame.transform.scale(pygame.image.load(f_wolf[self.counter]),
+                        self.image = pygame.transform.scale(pygame.image.load(f_bat[self.counter]),
                                                             (TILESIZE / 2, TILESIZE / 2))
-                        self.counter = (self.counter + 1) % len(f_wolf)
+                        self.counter = (self.counter + 1) % len(f_bat)
                         self.vy = RANGED_SPEED
                 elif self.playery < self.y:
                     distance_y = self.y - self.playery
                     if distance_x > distance_y:
                         if self.counter > 11:
                             self.counter = 0
-                        self.image = pygame.transform.scale(pygame.image.load(r_wolf[self.counter]),
+                        self.image = pygame.transform.scale(pygame.image.load(f_bat[self.counter]),
                                                             (TILESIZE / 2, TILESIZE / 2))
-                        self.counter = (self.counter + 1) % len(r_wolf)
+                        self.counter = (self.counter + 1) % len(f_bat)
                         self.vx = RANGED_SPEED
                     else:
-                        self.image = pygame.transform.scale(pygame.image.load(b_wolf[self.counter]),
+                        self.image = pygame.transform.scale(pygame.image.load(f_bat[self.counter]),
                                                             (TILESIZE / 2, TILESIZE / 2))
-                        self.counter = (self.counter + 1) % len(b_wolf)
+                        self.counter = (self.counter + 1) % len(f_bat)
                         self.vy = -RANGED_SPEED
 
     def update(self):
