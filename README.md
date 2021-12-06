@@ -20,4 +20,3 @@ Our objective is to simulate a method of procedural generation through the use o
 - Movement: W, A, S, D or Arrow Keys
 - Attack: Space Bar
 - Switch Weapons (after acquiring second weapon): X
-- 
