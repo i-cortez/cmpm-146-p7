@@ -16,3 +16,8 @@ Our objective is to simulate a method of procedural generation through the use o
 4. Copy the file `last.txt` into `src/game/`.
 5. In the `src/game/` directory run `python main.py`.
 6. A pop up window should open with the playable level.
+### How to Play
+- Movement: W, A, S, D or Arrow Keys
+- Attack: Space Bar
+- Switch Weapons (after acquiring second weapon): X
+- 
