@@ -1,4 +1,5 @@
-# graph.py
+# dungeon.py
+#
 # By: Ismael Cortez, Carl Vincent Cuyos, Nelson Norman, Kaixin Yu
 # Adapted from: James Spencer <jamessp [at] gmail.com>.
 # and Gaming AI P5

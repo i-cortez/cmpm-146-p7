@@ -1,3 +1,9 @@
+# tilemap.py
+#
+# By: Ismael Cortez, Carl Vincent Cuyos, Nelson Norman, Kaixin Yu
+# Adapted from: KidsCanCode
+#   https://github.com/kidscancode/pygame_tutorials/blob/master/tilemap/part%2004/tilemap.py
+#
 import pygame as pg
 from settings import *
 

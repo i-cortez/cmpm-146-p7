@@ -1,3 +1,7 @@
+# sprites.py
+#
+# By: Ismael Cortez, Carl Vincent Cuyos, Nelson Norman, Kaixin Yu
+#
 import pygame as pg
 from settings import *
 import random

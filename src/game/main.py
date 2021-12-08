@@ -1,3 +1,9 @@
+# main.py
+#
+# By: Ismael Cortez, Carl Vincent Cuyos, Nelson Norman, Kaixin Yu
+# Adapted from: KidsCanCode
+#   https://github.com/kidscancode/pygame_tutorials/blob/master/tilemap/part%2004/main.py
+#
 import pygame as pg
 import sys
 from os import path
@@ -32,7 +38,8 @@ class Game:
 
     def load_data(self):
         game_folder = path.dirname(__file__)
-        self.map = Map(path.join(game_folder, 'level_1.txt'))
+        #self.map = Map(path.join(game_folder, 'bad.txt'))
+        self.map = Map(path.join(game_folder, 'last.txt'))
 
     def new(self):
         # initialize all variables and do all the setup for a new game
@@ -144,6 +151,9 @@ class Game:
         hits = pg.sprite.groupcollide(self.bosses, self.orbs, False, True)
         for hit in hits:
             hit.health -= ORB_DAMAGE + (2 * self.player.wand_count) - 2
+            if hit.health <= 0:
+                pygame.quit()
+                sys.exit()
         hits = pg.sprite.groupcollide(self.enemies, self.orbs, False, True)
         for hit in hits:
             hit.health -= ORB_DAMAGE + (2 * self.player.wand_count) - 2
@@ -180,6 +190,10 @@ class Game:
                 hit.x += ENEMY_KNOCKBACK
             elif self.player.dir == 'L':
                 hit.x -= ENEMY_KNOCKBACK
+            # End condition
+            if hit.health <= 0:
+                pygame.quit()
+                sys.exit()
         hits = pg.sprite.groupcollide(self.traps, self.swords, False, True)
         for hit in hits:
             hit.touched = True
